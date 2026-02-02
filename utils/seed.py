@@ -73,13 +73,12 @@ for i in range(1, 101):
     id_plano = random.randint(1, 3) 
     
     data_inicio = data_criacao
-    data_renovacao = data_inicio + timedelta(days=30)
-    proxima_cobranca = data_renovacao
+    proxima_cobranca = data_inicio + timedelta(days=30)
     
     cursor.execute("""
-        INSERT INTO assinaturas (status, data_inicio, data_renovacao, proxima_cobranca, empresa_id, plano_id)
-        VALUES (?, ?, ?, ?, ?, ?)""",
-        (status, str(data_inicio.date()), str(data_renovacao.date()), str(proxima_cobranca.date()), id_empresa, id_plano))
+        INSERT INTO assinaturas (status, data_inicio, proxima_cobranca, empresa_id, plano_id)
+        VALUES (?, ?, ?, ?, ?)""",
+        (status, str(data_inicio.date()), str(proxima_cobranca.date()), id_empresa, id_plano))
 
 conexao.commit()
 conexao.close()
