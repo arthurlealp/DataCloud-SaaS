@@ -28,11 +28,36 @@ try:
 except Exception as e:
     print(f"Aviso nos planos: {e}")
 
-prefixos = ["Tech", "Soft", "Data", "Cloud", "Inova", "Web", "Net", "Sys"]
-sufixos = ["Solutions", "Sistemas", "Ltda", "S.A.", "Digital", "Analytics"]
-nomes_pessoas = ["Arthur", "Ana", "Bruno", "Carla", "Daniel", "Elena", "Fabio", "Gabriela"]
+# 🏖️ Nomes inspirados em Recife, PE
+prefixos = [
+    # Praias e lugares famosos
+    "Boa Viagem", "Pina", "Brasília Teimosa", "Piedade", "Candeias",
+    "Marco Zero", "Recife Antigo", "São José", "Santo Antônio",
+    # Bairros icônicos
+    "Casa Forte", "Espinheiro", "Graças", "Aflitos", "Derby",
+    # Pontos turísticos
+    "Paço Alfândega", "Torre Malakoff", "Kahal Zur Israel",
+    # Referências culturais
+    "Frevo", "Maracatu", "Manguebeat", "Boneco Gigante",
+    # Tech + Regional
+    "RecifeTech", "PortoDigital", "Mangue", "Capibaribe"
+]
+
+sufixos = [
+    "Solutions", "Analytics", "Tech", "Digital", "Sistemas",
+    "Labs", "Software", "Cloud", "Data", "Innovation",
+    "Tecnologia", "Soluções", "LTDA", "S.A."
+]
+
+nomes_pessoas = [
+    # Nomes comuns em Recife/PE
+    "Arthur", "José", "Maria", "João", "Ana", 
+    "Francisco", "Pedro", "Antônio", "Carlos", "Paulo",
+    "Fernanda", "Juliana", "Beatriz", "Gabriela", "Larissa"
+]
+
 for i in range(1, 101):
-    nome_empresa = f"{random.choice(prefixos)} {random.choice(sufixos)} {random.randint(1,999)}"
+    nome_empresa = f"{random.choice(prefixos)} {random.choice(sufixos)}"
     cnpj_fake = f"{random.randint(10000000, 99999999)}0001{random.randint(10,99)}"
     
     dias_atras = random.randint(1, 730)
