@@ -155,6 +155,24 @@ with st.sidebar:
             use_container_width=True
         )
     
+    # === SOBRE O DESENVOLVEDOR ===
+    st.divider()
+    st.markdown("### 👨‍💻 Sobre o Desenvolvedor")
+    
+    col_foto, col_info = st.columns([1, 3])
+    with col_foto:
+        st.image("https://github.com/arthurlealp.png", width=60)
+    with col_info:
+        st.markdown("**Arthur Leal Pacheco**")
+        st.caption("Data Engineer")
+    
+    st.markdown("""
+    [![LinkedIn](https://img.shields.io/badge/-LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/arthur-leal-pacheco-b95058353/)
+    [![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/arthurlealp)
+    """)
+    
+    st.caption("💡 Projeto open-source desenvolvido para demonstrar Clean Architecture e boas práticas em Python + Streamlit")
+    
     # Se autenticação estiver ativa, mostra info do usuário
     if settings.REQUIRE_AUTH:
         AuthService.render_user_info()
