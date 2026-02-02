@@ -79,101 +79,15 @@ try:
     # Verifica se DataFrame está vazio
     if df.empty:
         st.warning("⚠️ Banco de dados vazio")
-        st.info("👉 O banco de dados não possui dados. Inicialize com dados de exemplo para começar!")
+        st.info("""
+        � **Para popular o banco de dados com dados de exemplo:**
         
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("🔧 Inicializar Banco com Dados de Exemplo", use_container_width=True, type="primary"):
-                with st.spinner("Inicializando banco de dados..."):
-                    try:
-                        # Importa e executa seed diretamente
-                        import sys
-                        from pathlib import Path
-                        
-                        # Adiciona utils ao path
-                        utils_path = str(Path(__file__).parent / "utils")
-                        if utils_path not in sys.path:
-                            sys.path.insert(0, utils_path)
-                        
-                        # Executa seed inline
-                        import sqlite3
-                        import random
-                        from datetime import datetime, timedelta
-                        
-                        db_path = Path(settings.get_db_path_absolute())
-                        
-                        # Cria schema primeiro
-                        schema_path = Path("database/schema.sql")
-                        if schema_path.exists():
-                            with sqlite3.connect(db_path) as conn:
-                                with open(schema_path, 'r', encoding='utf-8') as f:
-                                    conn.executescript(f.read())
-                        
-                        # Popula dados
-                        with sqlite3.connect(db_path) as conn:
-                            cursor = conn.cursor()
-                            
-                            # Planos
-                            planos = [
-                                (1, 'Basic', 99.90, 3, 50.0),
-                                (2, 'Pro', 199.90, 10, 500.0),
-                                (3, 'Enterprise', 499.90, 999, 5000.0)
-                            ]
-                            cursor.executemany("INSERT OR IGNORE INTO planos VALUES (?,?,?,?,?)", planos)
-                            
-                            # Empresas e assinaturas (versão simplificada)
-                            prefixos = ["Tech", "Soft", "Data", "Cloud", "Inova"]
-                            sufixos = ["Solutions", "Sistemas", "Ltda", "Digital"]
-                            
-                            for i in range(1, 51):  # 50 empresas
-                                nome_empresa = f"{random.choice(prefixos)} {random.choice(sufixos)} {i}"
-                                cnpj_fake = f"{random.randint(10000000, 99999999)}0001{random.randint(10,99)}"
-                                dias_atras = random.randint(1, 730)
-                                data_criacao = datetime.now() - timedelta(days=dias_atras)
-                                
-                                cursor.execute("""
-                                    INSERT INTO empresas (razao_social, cnpj, data_criacao) 
-                                    VALUES (?, ?, ?)
-                                """, (nome_empresa, cnpj_fake, str(data_criacao.date())))
-                                
-                                id_empresa = cursor.lastrowid
-                                
-                                # Usuário
-                                cursor.execute("""
-                                    INSERT INTO usuarios (nome, email, cargo, empresa_id) 
-                                    VALUES (?, ?, ?, ?)
-                                """, (f"User {i}", f"user{i}@example.com", "Admin", id_empresa))
-                                
-                                # Assinatura
-                                plano_id = random.randint(1, 3)
-                                data_inicio = datetime.now() - timedelta(days=random.randint(0, 365))
-                                ativo = random.choice([True, True, True, False])  # 75% ativo
-                                
-                                cursor.execute("""
-                                    INSERT INTO assinaturas (empresa_id, plano_id, data_inicio, ativo) 
-                                    VALUES (?, ?, ?, ?)
-                                """, (id_empresa, plano_id, str(data_inicio.date()), ativo))
-                            
-                            conn.commit()
-                        
-                        st.success("✅ Banco inicializado com 50 empresas de exemplo!")
-                        st.cache_data.clear()
-                        st.balloons()
-                        st.rerun()
-                        
-                    except Exception as init_error:
-                        st.error(f"Erro ao inicializar: {init_error}")
-                        import traceback
-                        st.code(traceback.format_exc())
-        
-        st.markdown("---")
-        st.markdown("""
-        ### 📖 Alternativa Manual
-        
-        Você também pode inicializar via terminal:
+        Execute no terminal:
         ```bash
         python utils/seed.py
         ```
+        
+        Depois, volte aqui e clique em **"� Atualizar Dados"**.
         """)
         st.stop()
     
@@ -188,14 +102,7 @@ try:
     
 except Exception as e:
     st.error(f"❌ Erro ao carregar dados: {e}")
-    st.info("💡 **Dica:** Clique no botão abaixo para inicializar o banco ou execute `python utils/seed.py` manualmente.")
-    
-    # Botão de inicialização (usa mesma lógica do bloco acima)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("🔧 Tentar Inicializar Banco", use_container_width=True, type="primary"):
-            st.rerun()  # Recarrega e vai cair no bloco de df.empty acima
-    
+    st.info("💡 Verifique se o banco de dados existe e foi inicializado com `python utils/seed.py`")
     st.stop()
 
 
