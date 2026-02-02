@@ -38,8 +38,6 @@ Nossa plataforma **centraliza, processa e visualiza** todos esses dados em um ú
 
 ## 🧠 Desafios e Aprendizados
 
-> *"A IA pode gerar código, mas não pode viver os desafios. Aqui está minha jornada real."*
-
 Durante o desenvolvimento deste projeto, enfrentei alguns desafios interessantes que moldaram as decisões arquiteturais:
 
 ### **🏗️ Refatoração para Clean Architecture**
