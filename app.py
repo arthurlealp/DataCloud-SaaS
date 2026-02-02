@@ -76,6 +76,43 @@ try:
     resultado = carregar_dados()
     df = resultado['dados']
     
+    # Verifica se DataFrame está vazio
+    if df.empty:
+        st.warning("⚠️ Banco de dados vazio")
+        st.info("👉 O banco de dados não possui dados. Inicialize com dados de exemplo para começar!")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🔧 Inicializar Banco com Dados de Exemplo", use_container_width=True, type="primary"):
+                with st.spinner("Inicializando banco de dados..."):
+                    import subprocess
+                    from pathlib import Path
+                    
+                    try:
+                        # Executa seed.py
+                        seed_path = Path("utils/seed.py")
+                        if seed_path.exists():
+                            subprocess.run(["python", str(seed_path)], check=True)
+                            st.success("✅ Banco inicializado com sucesso!")
+                            st.cache_data.clear()
+                            st.balloons()
+                            st.rerun()
+                        else:
+                            st.error("Arquivo utils/seed.py não encontrado!")
+                    except Exception as init_error:
+                        st.error(f"Erro ao inicializar: {init_error}")
+        
+        st.markdown("---")
+        st.markdown("""
+        ### 📖 Alternativa Manual
+        
+        Você também pode inicializar via terminal:
+        ```bash
+        python utils/seed.py
+        ```
+        """)
+        st.stop()
+    
     # Informações de atualização
     col_info1, col_info2 = st.columns([3, 1])
     with col_info1:
@@ -87,7 +124,40 @@ try:
     
 except Exception as e:
     st.error(f"❌ Erro ao carregar dados: {e}")
-    st.info("💡 Verifique se o banco de dados existe e a view foi criada.")
+    
+    # Oferece botão de inicialização mesmo em caso de erro
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🔧 Tentar Inicializar Banco", use_container_width=True, type="primary"):
+            with st.spinner("Inicializando banco de dados..."):
+                import subprocess
+                from pathlib import Path
+                import sqlite3
+                
+                try:
+                    # Cria estrutura básica
+                    db_path = Path(settings.get_db_path_absolute())
+                    schema_path = Path("database/schema.sql")
+                    
+                    if schema_path.exists():
+                        with sqlite3.connect(db_path) as conn:
+                            with open(schema_path, 'r', encoding='utf-8') as f:
+                                conn.executescript(f.read())
+                    
+                    # Popula dados
+                    seed_path = Path("utils/seed.py")
+                    if seed_path.exists():
+                        subprocess.run(["python", str(seed_path)], check=True)
+                    
+                    st.success("✅ Banco inicializado com sucesso!")
+                    st.cache_data.clear()
+                    st.balloons()
+                    st.rerun()
+                except Exception as init_error:
+                    st.error(f"Erro ao inicializar: {init_error}")
+    
+    st.markdown("---")
+    st.info("💡 **Dica:** Se o erro persistir, verifique os logs ou execute `python utils/seed.py` manualmente.")
     st.stop()
 
 
