@@ -1,447 +1,207 @@
-<div align="center">
+# DataCloud SaaS Analytics
 
-# 🚀 DataCloud SaaS Analytics
+Projeto desenvolvido para praticar **arquitetura de software**, **organização em camadas**, **ETL** e **construção de dashboards** no contexto de métricas SaaS.
 
-### *Plataforma Inteligente de Análise e Monitoramento para Empresas SaaS*
+## Objetivo
 
-[![Status](https://img.shields.io/badge/status-production--ready-success)](https://github.com)
-[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Architecture](https://img.shields.io/badge/architecture-Clean%20Architecture-orange)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+Aplicar na prática os seguintes conceitos:
 
-**Transforme dados em decisões estratégicas com analytics em tempo real**
+- **Clean Architecture** (separação em camadas)
+- **Repository Pattern** (abstração de persistência)
+- **Pipeline ETL** (extração, transformação, carga)
+- **Validação de dados** com Pydantic
+- **Dashboards interativos** com Streamlit
+- **Boas práticas** de organização de projetos Python
 
-[🎯 Features](#-principais-funcionalidades) • [📊 Dashboard](#-dashboard-interativo) • [🚀 Quick Start](#-quick-start) • [📖 Documentação](#-documentação)
+O domínio escolhido foi **SaaS (Software as a Service)** para trabalhar com métricas reais: MRR, ARR, LTV e Churn.
 
 ---
 
-</div>
+## Stack
 
-## 💡 Sobre o Projeto
+| Categoria                | Tecnologia                                   |
+| ------------------------ | -------------------------------------------- |
+| **Backend**        | Python 3.10+, Pandas, Pydantic               |
+| **Interface**      | Streamlit, Altair                            |
+| **Banco de Dados** | SQLite (estrutura preparada para migração) |
+| **Validação**    | Pydantic Schemas                             |
 
-**DataCloud SaaS Analytics** é uma solução completa de Business Intelligence desenvolvida especificamente para empresas que trabalham com modelo de assinaturas (SaaS).
+---
 
-A plataforma oferece **visibilidade total** sobre seus principais indicadores de negócio através de um pipeline ETL robusto, sistema de alertas inteligentes e dashboards interativos de última geração.
+## Arquitetura
 
-### 🎯 Problema que Resolve
+O projeto foi estruturado seguindo **Clean Architecture**, dividido em quatro camadas:
 
-Empresas SaaS precisam monitorar constantemente:
+```
+src/
+├── domain/          # Entidades, regras de negócio e schemas
+├── infrastructure/  # Repositórios e acesso ao banco
+├── application/     # Casos de uso, ETL e cálculo de métricas
+└── presentation/    # Interface (autenticação, componentes)
+```
 
-- 📈 Receita recorrente (MRR/ARR)
-- 👥 Comportamento de clientes
-- ⚠️ Taxas de cancelamento (Churn)
-- 💰 Valor do ciclo de vida (LTV)
+### Separação de Responsabilidades
 
-Nossa plataforma **centraliza, processa e visualiza** todos esses dados em um único lugar, com alertas automáticos para anomalias críticas.
+- **Domain**: Regras de negócio puras, sem dependências externas
+- **Infrastructure**: Implementação concreta de persistência (SQLite)
+- **Application**: Orquestração de casos de uso e processamento
+- **Presentation**: Camada de visualização (Streamlit)
+
+**Vantagem:** Trocar o banco de dados requer alteração apenas na camada `infrastructure`.
+
+---
+
+## Funcionalidades Implementadas
+
+- ✅ Autenticação simples com hash SHA-256
+- ✅ Pipeline ETL para processamento de dados
+- ✅ Cálculo de KPIs SaaS:
+  - MRR (Monthly Recurring Revenue)
+  - ARR (Annual Recurring Revenue)
+  - LTV (Lifetime Value)
+  - Churn Rate
+  - Ticket Médio
+- ✅ Sistema de alertas configurável (3 níveis)
+- ✅ Cache com `st.cache_data` (TTL 5min)
+- ✅ Exportação em CSV e Excel
+- ✅ Paginação para grandes volumes
+
+---
+
+## Decisões Técnicas
+
+### Repository Pattern
+
+Utilizado para **desacoplar** regras de negócio do mecanismo de persistência. Mudanças no banco não afetam a lógica de aplicação.
+
+### Pydantic
+
+Validação de dados **na entrada** para evitar inconsistências propagadas até o dashboard.
+
+### Cache
+
+Uso de `@st.cache_data(ttl=300)` para reduzir tempo de resposta de ~3s para <0.5s em consultas repetidas.
+
+### SQLite
+
+Escolhido por **simplicidade** e **portabilidade** (zero configuração). Estrutura preparada para futura migração para PostgreSQL.
 
 ---
 
 ## 🧠 Desafios e Aprendizados
 
-> *"A IA pode gerar código, mas não pode viver os desafios. Aqui está minha jornada real."*
+### Refatoração Arquitetural
 
-Durante o desenvolvimento deste projeto, enfrentei alguns desafios interessantes que moldaram as decisões arquiteturais:
+**Problema:** Inicialmente, todo o código estava em um único arquivo (~500 linhas). Funcional, mas difícil de manter.
 
-### **🏗️ Refatoração para Clean Architecture**
+**Solução:** Refatorei para Clean Architecture com 4 camadas distintas. O código ficou mais fácil de entender e estender.
 
-**O Problema:** Inicialmente, comecei com tudo em um único arquivo (`app.py` com ~500 linhas). Funcional, mas impossível de manter e testar.
+### Performance do Streamlit
 
-**A Solução:**
-- Separei o código em **4 camadas distintas** (Domain, Infrastructure, Application, Presentation)
-- Implementei o **Repository Pattern** para abstrair acesso ao banco
-- Criei **configuração centralizada** com Pydantic Settings
+**Problema:** Cada clique recarregava TUDO do banco. Tempo de resposta: ~3s.
 
-**Aprendizado:** Clean Architecture não é overhead - é **investimento**. O código ficou mais fácil de entender, testar e estender.
+**Solução:** Implementei cache com `st.cache_data`, otimizei queries SQL com índices e adicionei paginação.
 
----
+**Resultado:** Tempo reduzido para <0.5s.
 
-### **⚡ Performance do Streamlit**
+### Tentativa de Deploy
 
-**O Problema:** A cada clique no dashboard, o Streamlit recarregava TUDO do banco de dados. Tempo de resposta: **~3 segundos** ❌
+**Desafio:** Tentei deploy no Streamlit Community Cloud e encontrei:
 
-**A Solução:**
-- Implementei `@st.cache_data` com **TTL de 5 minutos**
-- Otimizei queries SQL com índices
-- Adicionei paginação para tabelas grandes
-
-**Resultado:** Tempo reduzido para **<0.5s** ✅
-
-**Código relevante:**
-```python
-@st.cache_data(ttl=300)  # 5 minutos
-def carregar_dados():
-    # ETL completo com cache
-    return dados_processados
-```
-
----
-
-### **🚀 Tentativa de Deploy (e o que aprendi)**
-
-**O Desafio:** Tentei fazer deploy no Streamlit Community Cloud e encontrei:
-- Incompatibilidade do **Pydantic 2.5** com **Python 3.13**
-- Problema com `subprocess.run()` no ambiente cloud
+- Incompatibilidade do Pydantic 2.5 com Python 3.13
+- Problemas com `subprocess.run()` no ambiente cloud
 - Dificuldade em popular banco SQLite remotamente
-
-**O que fiz:**
-- Pesquisei sobre **gestão de dependências** (`requirements.txt` com versões flexíveis)
-- Aprendi sobre **constraints de ambientes cloud**
-- Decidi focar em **execução local** por enquanto
 
 **Aprendizado:** Deploy não é "apertar um botão". Cada ambiente tem suas peculiaridades. Próximo passo: estudar Docker para ambientes mais consistentes.
 
----
+### Validação com Pydantic
 
-### **💾 Escolha do Banco de Dados**
+**Descoberta:** 90% dos bugs vinham de **dados inconsistentes** (datas inválidas, valores None inesperados).
 
-**A Decisão:** Comecei com SQLite por simplicidade, mas desenhei toda arquitetura pensando em **migração futura para PostgreSQL**.
-
-**Por quê SQLite primeiro:**
-- ✅ Zero configuração
-- ✅ Portabilidade (arquivo único)
-- ✅ Perfeito para demonstração
-
-**Por quê PostgreSQL no futuro:**
-- 🚀 Multi-tenancy
-- 🚀 Conexões concorrentes
-- 🚀 Features enterprise (JSONB, Full-text search)
-
-**Decisão arquitetural:** Usei **Repository Pattern** para que mudar de banco seja trocar 1 arquivo, não refatorar tudo.
+**Impacto:** Erros capturados na entrada. Dashboard nunca mais quebrou por dado inválido.
 
 ---
 
-### **🧪 Validação com Pydantic**
-
-**A Surpresa:** Descobri que 90% dos bugs vêm de **dados inconsistentes** (datas inválidas, valores None inesperados, tipos errados).
-
-**A Solução:** Pydantic Schemas para validação na entrada:
-```python
-class AssinaturaSchema(BaseModel):
-    razao_social: str
-    preco_mensal: float
-    data_inicio: date
-    
-    @field_validator('preco_mensal')
-    def validar_preco(cls, v):
-        if v < 0:
-            raise ValueError('Preço não pode ser negativo')
-        return v
-```
-
-**Impacto:** Erros capturados **na entrada**, não na visualização. Dashboard nunca mais quebrou por dado inválido.
-
----
-
-### **🎯 O Maior Aprendizado**
-
-> **Escrever código é fácil. Escrever código MANUTENÍVEL é difícil.**
-
-Este projeto me ensinou que:
-- ✅ **Arquitetura importa** mais que código "bonito"
-- ✅ **Type hints** economizam horas de debug
-- ✅ **Logging estruturado** é essencial (salvou-me várias vezes)
-- ✅ **Documentação** é para o "eu do futuro" (que esquece tudo)
-
----
-
-## ✨ Principais Funcionalidades
-
-### 🏗️ **Arquitetura Enterprise**
-
-- ✅ **Clean Architecture** - Código organizado em camadas (Domain, Infrastructure, Application, Presentation)
-- ✅ **Repository Pattern** - Abstração completa do acesso a dados
-- ✅ **Dependency Injection** - Configuração centralizada e testável
-- ✅ **SOLID Principles** - Design patterns profissionais
-
-### 🔒 **Segurança de Nível Bancário**
-
-- ✅ Autenticação com hash SHA-256
-- ✅ SQL parametrizado (anti SQL Injection)
-- ✅ Context managers para segurança de recursos
-- ✅ Validação de dados com Pydantic
-- ✅ Logs auditáveis com rotação automática
-
-### 📊 **Analytics Avançado**
-
-- ✅ **6 KPIs Essenciais** calculados em tempo real
-- ✅ **Sistema de Alertas Inteligente** com 3 níveis de severidade
-- ✅ **Análise de Cohort** por período
-- ✅ **Timeline de Crescimento** com visualizações interativas
-- ✅ **Exportação Profissional** (Excel formatado + CSV)
-
-### ⚡ **Performance e Escalabilidade**
-
-- ✅ Cache inteligente (TTL configurável)
-- ✅ Paginação otimizada para grandes volumes
-- ✅ Queries com índices no banco
-- ✅ Connection pooling automático
-
----
-
-## 📊 Dashboard Interativo
-
-<div align="center">
-
-### **Interface Moderna e Intuitiva**
-
-| Visão Geral           | Análise Detalhada               | Timeline                |
-| ---------------------- | -------------------------------- | ----------------------- |
-| KPIs em cards visuais  | Tabelas com filtros avançados   | Gráficos de evolução |
-| Alertas em tempo real  | Paginação para grandes volumes | Análise por cohort     |
-| Métricas comparativas | Exportação com 1 clique        | Previsões futuras      |
-
-</div>
-
-**Features do Dashboard:**
-
-- 🎨 Design responsivo e moderno
-- 🔔 Notificações automáticas de anomalias
-- 📥 Exportação em múltiplos formatos
-- 🔍 Filtros dinâmicos por plano e status
-- 📱 Visualização mobile-friendly
-
----
-
-## 🚀 Quick Start
-
-### **Requisitos**
-
-- Python 3.10+
-- SQLite3 (incluído no Python)
-- 5 minutos do seu tempo ⏱️
-
-### **Instalação em 4 Passos**
+## Execução Local
 
 ```bash
-# 1️⃣ Clone o repositório
-git clone https://github.com/SEU_USUARIO/DataCloud-SaaS.git
+# 1. Clone o repositório
+git clone https://github.com/arthurlealp/DataCloud-SaaS.git
 cd DataCloud-SaaS
 
-# 2️⃣ Instale as dependências
+# 2. Instale as dependências
 pip install -r requirements.txt
 
-# 3️⃣ Inicialize o banco de dados
-sqlite3 data/saas.db < database/schema.sql
-# OU para dados de teste: python utils/seed.py
+# 3. Inicialize o banco de dados
+python utils/seed.py
 
-# 4️⃣ Lance o dashboard! 🚀
+# 4. Rode o dashboard
 streamlit run app.py
 ```
 
-**Acesse:** http://localhost:8501
+**Acesso:** http://localhost:8501
 
-**Credenciais de Demonstração:**
+**Credenciais (se autenticação estiver ativa):**
 
-- 👤 Admin: `admin` / `admin123`
-- 👁️ Viewer: `viewer` / `viewer123`
-
----
-
-## 📊 KPIs e Métricas
-
-| Indicador                  | Descrição                          | Benchmark       |
-| -------------------------- | ------------------------------------ | --------------- |
-| **MRR** 💰           | Monthly Recurring Revenue            | Meta: R$ 60.000 |
-| **ARR** 📈           | Annual Recurring Revenue (MRR × 12) | Crescimento YoY |
-| **LTV** ⭐           | Lifetime Value por cliente           | Min: R$ 1.000   |
-| **Churn Rate** ⚠️  | Taxa de cancelamento mensal          | Max: 5%         |
-| **Ticket Médio** 💵 | Valor médio por assinatura          | -               |
-| **CAC** 🎯           | Custo de Aquisição                 | Roadmap         |
+- Admin: `admin` / `admin123`
+- Viewer: `viewer` / `viewer123`
 
 ---
 
-## 🔔 Sistema de Alertas Inteligente
-
-A plataforma monitora seus dados **24/7** e dispara alertas automáticos:
-
-| Nível                  | Condição         | Ação                       |
-| ----------------------- | ------------------ | ---------------------------- |
-| 🚨**CRÍTICO**    | Churn > 5%         | Alerta vermelho no dashboard |
-| ⚠️**ATENÇÃO** | MRR abaixo da meta | Notificação laranja        |
-| ⚠️**ATENÇÃO** | LTV médio baixo   | Sugestão de ação          |
-| ℹ️**INFO**      | Meta superada      | Parabéns! 🎉                |
-
----
-
-## 🏗️ Arquitetura Técnica
-
-```
-┌─────────────────────────────────────────────────┐
-│          PRESENTATION LAYER                     │
-│  ┌──────────────┐  ┌────────────────────────┐  │
-│  │ Streamlit UI │  │ Auth & Session Mgmt    │  │
-│  └──────────────┘  └────────────────────────┘  │
-└─────────────────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────┐
-│          APPLICATION LAYER                      │
-│  ┌──────┐ ┌──────┐ ┌────────┐ ┌──────────────┐│
-│  │ ETL  │ │ KPIs │ │ Alerts │ │ Export       ││
-│  └──────┘ └──────┘ └────────┘ └──────────────┘│
-└─────────────────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────┐
-│          INFRASTRUCTURE LAYER                   │
-│  ┌──────────────┐  ┌────────────────────────┐  │
-│  │ Repositories │  │ Database Context Mgr   │  │
-│  └──────────────┘  └────────────────────────┘  │
-└─────────────────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────┐
-│          DOMAIN LAYER                           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │ Entities │  │ Schemas  │  │ Business Rules│ │
-│  └──────────┘  └──────────┘  └──────────────┘  │
-└─────────────────────────────────────────────────┘
-```
-
-### **Principais Tecnologias**
-
-| Categoria                 | Stack                                      |
-| ------------------------- | ------------------------------------------ |
-| **Backend**         | Python 3.10+, Pandas, Pydantic             |
-| **Frontend**        | Streamlit, Altair (charts)                 |
-| **Database**        | SQLite (fácil migração para PostgreSQL) |
-| **Data Processing** | Pipeline ETL customizado                   |
-| **Testing**         | Pytest (estrutura pronta)                  |
-
----
-
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 DataCloud-SaaS/
-├── 📂 src/
-│   ├── domain/          # 🧠 Regras de negócio
-│   ├── infrastructure/  # 🗄️ Acesso a dados
-│   ├── application/     # ⚙️ Lógica de aplicação
-│   └── presentation/    # 🎨 Interface do usuário
-├── 📂 config/           # ⚙️ Configurações
-├── 📂 database/         # 📊 Scripts SQL
-├── 📂 utils/            # 🛠️ Ferramentas auxiliares
-├── 📄 app.py           # 🚀 Dashboard principal
-├── 📄 main.py          # 🔄 CLI do pipeline ETL
-└── 📄 requirements.txt # 📦 Dependências
+├── src/
+│   ├── domain/         # Schemas Pydantic, entidades
+│   ├── infrastructure/ # Repositórios, database
+│   ├── application/    # ETL, KPIs, alertas, exportação
+│   └── presentation/   # Autenticação
+├── config/             # Settings, logging
+├── database/           # Schema SQL
+├── utils/              # Seed, helpers
+├── app.py              # Dashboard Streamlit
+├── main.py             # CLI do pipeline ETL
+└── requirements.txt
 ```
 
 ---
 
-## 🛠️ Configuração Avançada
+## Pontos de Aprendizado
 
-### **Variáveis de Ambiente (.env)**
+Durante o desenvolvimento, pratiquei:
 
-```env
-# 🌍 Ambiente
-ENV=production              # development | staging | production
-DEBUG=False
-LOG_LEVEL=INFO
-
-# 🎯 Metas de Negócio (Customizáveis)
-META_RECEITA_MENSAL=60000.00
-META_CHURN_MAX=0.05         # 5%
-META_LTV_MINIMO=1000.00
-
-# 🔒 Segurança
-REQUIRE_AUTH=True           # Ativar autenticação
-SECRET_KEY=your-secure-key-here
-
-# ⚡ Performance
-PAGE_SIZE=50                # Registros por página
-CACHE_TTL=300               # Cache: 5 minutos
-```
+- ✅ Organização de código em camadas
+- ✅ Tratamento estruturado de exceções
+- ✅ Uso consistente de type hints
+- ✅ Logging com rotação de arquivos
+- ✅ Gestão de dependências e compatibilidade
+- ✅ Otimização de consultas e cache
+- ✅ Problemas comuns de deploy cloud
 
 ---
 
-## 🧪 Qualidade de Código
-
-### **Boas Práticas Implementadas**
-
-✅ **Type Hints** em 100% do código
-✅ **Docstrings** em todas as funções públicas
-✅ **Logging estruturado** com níveis apropriados
-✅ **Tratamento de exceções** robusto
-✅ **Validação de entrada** com Pydantic
-✅ **Testes unitários** prontos para implementar
-
-### **Próximos Passos (Roadmap)**
-
-#### **🚀 Versão 2.0 (Q2 2026)**
+## Próximos Passos
 
 - [ ] Migração para PostgreSQL (multi-tenancy)
-- [ ] API REST com FastAPI
+- [ ] Exposição de API REST com FastAPI
+- [ ] Testes automatizados completos (pytest)
+- [ ] CI/CD com GitHub Actions
+- [ ] Containerização com Docker
 - [ ] Machine Learning para previsão de churn
-- [ ] Webhooks para integrações
-- [ ] Relatórios agendados por email
-
-#### **⚡ Performance**
-
-- [ ] Cache distribuído (Redis)
-- [ ] Queries assíncronas
-- [ ] Worker em background (Celery)
-
----
-
-## 📖 Documentação
-
-### **Guias Disponíveis**
-
-- 📘 [Instalação Completa](INSTALLATION.md) *(futuro)*
-- 📙 [Guia de Desenvolvimento](DEVELOPMENT.md) *(futuro)*
-- 📕 [API Reference](API.md) *(futuro)*
-- 📗 [Deployment Guide](DEPLOYMENT.md) *(futuro)*
-
-### **Links Úteis**
-
-- [Documentação do Streamlit](https://docs.streamlit.io)
-- [Pydantic Documentation](https://docs.pydantic.dev)
-- [Clean Architecture Explained](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-
----
-
-## 🤝 Contribuindo
-
-Contribuições são **muito bem-vindas**! Este projeto foi desenvolvido como demonstração de boas práticas em engenharia de software.
-
-### **Como Contribuir**
-
-1. 🍴 Fork o projeto
-2. 🌿 Crie uma branch (`git checkout -b feature/MinhaFeature`)
-3. ✍️ Commit suas mudanças (`git commit -m 'Add: MinhaFeature'`)
-4. 📤 Push para a branch (`git push origin feature/MinhaFeature`)
-5. 🎉 Abra um Pull Request
-
----
-
-## 📝 Licença
-
-Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-```
-MIT License - Livre para uso comercial e modificação
-```
 
 ---
 
 ## 👨‍💻 Autor
 
-**Desenvolvido com** ❤️ **e boas práticas de engenharia de software**
+**Arthur Leal Pacheco**
+Data Engineer
 
-- Arquitetura limpa e escalável
-- Código autodocumentado
-- Pronto para produção
-
-### **Demonstração de Skills:**
-
-`Python` • `Clean Architecture` • `ETL` • `Data Analytics` • `Streamlit` • `Pydantic` • `SQLite` • `Git` • `Design Patterns` • `SOLID`
+[![LinkedIn](https://img.shields.io/badge/-LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/arthur-leal-pacheco-b95058353/)
+[![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/arthurlealp)
 
 ---
 
-<div align="center">
+## Licença
 
-### **⭐ Se este projeto foi útil, considere dar uma estrela!**
-
-[![GitHub stars](https://img.shields.io/github/stars/arthurlealp/DataCloud-SaaS?style=social)](https://github.com/arthurlealp/DataCloud-SaaS)
-
-**DataCloud SaaS Analytics** © 2026 | Todos os direitos reservados
-
-</div>
+MIT License - Livre para uso e modificação.
