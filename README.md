@@ -332,7 +332,7 @@ MIT License - Livre para uso comercial e modificação
 
 ### **⭐ Se este projeto foi útil, considere dar uma estrela!**
 
-[![GitHub stars](https://img.shields.io/github/stars/SEU_USUARIO/DataCloud-SaaS?style=social)](https://github.com/SEU_USUARIO/DataCloud-SaaS)
+[![GitHub stars](https://img.shields.io/github/stars/arthurlealp/DataCloud-SaaS?style=social)](https://github.com/arthurlealp/DataCloud-SaaS)
 
 **DataCloud SaaS Analytics** © 2026 | Todos os direitos reservados
 
