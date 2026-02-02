@@ -68,14 +68,6 @@ for i in range(1, 101):
     
     id_empresa = cursor.lastrowid
 
-    nome_user = f"{random.choice(nomes_pessoas)} {random.choice(['Silva', 'Santos', 'Oliveira'])}"
-    nome_user_clean = nome_user.split()[0].lower()
-    email_user = f"{nome_user_clean}.{id_empresa}@example.com"
-    
-    cursor.execute("""
-        INSERT INTO usuarios (nome, email, cargo, empresa_id) 
-        VALUES (?, ?, ?, ?)""", 
-        (nome_user, email_user, "Admin", id_empresa))
 
     status = random.choices(['Ativo', 'Cancelado', 'Trial', 'Inativo'], weights=[70, 10, 15, 5])[0]
     id_plano = random.randint(1, 3) 
