@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS empresas (
     cnpj TEXT UNIQUE NOT NULL,
     email TEXT,
     telefone TEXT,
+    data_criacao DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
