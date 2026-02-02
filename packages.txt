@@ -1,2 +1,0 @@
-# Este arquivo lista dependências do sistema para Streamlit Cloud
-# Para projetos Python puro com SQLite, não são necessários pacotes adicionais
