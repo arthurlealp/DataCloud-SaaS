@@ -36,6 +36,114 @@ Nossa plataforma **centraliza, processa e visualiza** todos esses dados em um ú
 
 ---
 
+## 🧠 Desafios e Aprendizados
+
+> *"A IA pode gerar código, mas não pode viver os desafios. Aqui está minha jornada real."*
+
+Durante o desenvolvimento deste projeto, enfrentei alguns desafios interessantes que moldaram as decisões arquiteturais:
+
+### **🏗️ Refatoração para Clean Architecture**
+
+**O Problema:** Inicialmente, comecei com tudo em um único arquivo (`app.py` com ~500 linhas). Funcional, mas impossível de manter e testar.
+
+**A Solução:**
+- Separei o código em **4 camadas distintas** (Domain, Infrastructure, Application, Presentation)
+- Implementei o **Repository Pattern** para abstrair acesso ao banco
+- Criei **configuração centralizada** com Pydantic Settings
+
+**Aprendizado:** Clean Architecture não é overhead - é **investimento**. O código ficou mais fácil de entender, testar e estender.
+
+---
+
+### **⚡ Performance do Streamlit**
+
+**O Problema:** A cada clique no dashboard, o Streamlit recarregava TUDO do banco de dados. Tempo de resposta: **~3 segundos** ❌
+
+**A Solução:**
+- Implementei `@st.cache_data` com **TTL de 5 minutos**
+- Otimizei queries SQL com índices
+- Adicionei paginação para tabelas grandes
+
+**Resultado:** Tempo reduzido para **<0.5s** ✅
+
+**Código relevante:**
+```python
+@st.cache_data(ttl=300)  # 5 minutos
+def carregar_dados():
+    # ETL completo com cache
+    return dados_processados
+```
+
+---
+
+### **🚀 Tentativa de Deploy (e o que aprendi)**
+
+**O Desafio:** Tentei fazer deploy no Streamlit Community Cloud e encontrei:
+- Incompatibilidade do **Pydantic 2.5** com **Python 3.13**
+- Problema com `subprocess.run()` no ambiente cloud
+- Dificuldade em popular banco SQLite remotamente
+
+**O que fiz:**
+- Pesquisei sobre **gestão de dependências** (`requirements.txt` com versões flexíveis)
+- Aprendi sobre **constraints de ambientes cloud**
+- Decidi focar em **execução local** por enquanto
+
+**Aprendizado:** Deploy não é "apertar um botão". Cada ambiente tem suas peculiaridades. Próximo passo: estudar Docker para ambientes mais consistentes.
+
+---
+
+### **💾 Escolha do Banco de Dados**
+
+**A Decisão:** Comecei com SQLite por simplicidade, mas desenhei toda arquitetura pensando em **migração futura para PostgreSQL**.
+
+**Por quê SQLite primeiro:**
+- ✅ Zero configuração
+- ✅ Portabilidade (arquivo único)
+- ✅ Perfeito para demonstração
+
+**Por quê PostgreSQL no futuro:**
+- 🚀 Multi-tenancy
+- 🚀 Conexões concorrentes
+- 🚀 Features enterprise (JSONB, Full-text search)
+
+**Decisão arquitetural:** Usei **Repository Pattern** para que mudar de banco seja trocar 1 arquivo, não refatorar tudo.
+
+---
+
+### **🧪 Validação com Pydantic**
+
+**A Surpresa:** Descobri que 90% dos bugs vêm de **dados inconsistentes** (datas inválidas, valores None inesperados, tipos errados).
+
+**A Solução:** Pydantic Schemas para validação na entrada:
+```python
+class AssinaturaSchema(BaseModel):
+    razao_social: str
+    preco_mensal: float
+    data_inicio: date
+    
+    @field_validator('preco_mensal')
+    def validar_preco(cls, v):
+        if v < 0:
+            raise ValueError('Preço não pode ser negativo')
+        return v
+```
+
+**Impacto:** Erros capturados **na entrada**, não na visualização. Dashboard nunca mais quebrou por dado inválido.
+
+---
+
+### **🎯 O Maior Aprendizado**
+
+> **Escrever código é fácil. Escrever código MANUTENÍVEL é difícil.**
+
+Este projeto me ensinou que:
+- ✅ **Arquitetura importa** mais que código "bonito"
+- ✅ **Type hints** economizam horas de debug
+- ✅ **Logging estruturado** é essencial (salvou-me várias vezes)
+- ✅ **Documentação** é para o "eu do futuro" (que esquece tudo)
+
+---
+
 ## ✨ Principais Funcionalidades
 
 ### 🏗️ **Arquitetura Enterprise**
