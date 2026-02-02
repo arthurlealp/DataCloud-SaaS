@@ -7,7 +7,8 @@ import os
 sys.stdout.reconfigure(encoding='utf-8')
 
 pasta_atual = os.path.dirname(os.path.abspath(__file__))
-caminho_banco = os.path.join(pasta_atual, "saas.db") 
+raiz_projeto = os.path.dirname(pasta_atual)
+caminho_banco = os.path.join(raiz_projeto, "data", "saas.db")
 
 print(f"🔍 Conectando no banco em: {caminho_banco}")
 
